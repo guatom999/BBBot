@@ -1,0 +1,32 @@
+# Build artifacts
+dist/
+bin/
+pkg/
+cache/
+
+# IDE files
+*.DS_Store
+*.idea
+*.vscode
+
+# OS specific files
+.DS_Store
+
+# Log files
+*.log
+
+# Test files
+coverage.out
+*.out
+
+# Generated files
+*.pb.go
+
+# Dependency directories
+vendor/
+
+# Specific to Go modules
+sum.go
+
+.env*
+env/
