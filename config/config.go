@@ -12,6 +12,7 @@ type (
 		App        App
 		Gcp        Gcp
 		QrcodeInfo QrcodeInfo
+		User       User
 	}
 
 	App struct {
@@ -28,6 +29,11 @@ type (
 		BucketName string
 		UploadPath string
 		FileLimit  int64
+	}
+
+	User struct {
+		Username string
+		Password string
 	}
 )
 
@@ -55,6 +61,10 @@ func GetConfig(path string) Config {
 			BucketName: viper.GetString("GCP_BUCKET_NAME"),
 			UploadPath: viper.GetString("GCP_UPLOAD_PATH"),
 			FileLimit:  int64(viper.GetInt("GCP_UPLOAD_PATH")),
+		},
+		User: User{
+			Username: viper.GetString("IG_USERNAME"),
+			Password: viper.GetString("IG_PASSWORD"),
 		},
 	}
 }

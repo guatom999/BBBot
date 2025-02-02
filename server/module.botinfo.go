@@ -35,6 +35,11 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "getfollowers",
+			Description: "get instagram followers",
+			// Options: []*discordgo.ApplicationCommandOption
+		},
 	}
 )
 
@@ -63,6 +68,8 @@ func (m *module) BotinfoModule() IBotinfoModule {
 	botfoUseCase := botUseCases.NewBotUseCase(botRepository, m.cfg, gcpCli)
 	botfoHandler := botHandlers.NewBotHandler(botfoUseCase)
 
+	botfoUseCase.ScheduleGetFollowers()
+
 	return &botInfoModule{
 		module:     m,
 		botUseCase: botfoUseCase,
@@ -75,4 +82,5 @@ func (b *botInfoModule) Init() {
 
 	b.module.commandHandler["test"] = b.botHandler.Help
 	b.module.commandHandler["donate"] = b.botHandler.Donate
+	b.module.commandHandler["getfollowers"] = b.botHandler.GetFollowers
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/guatom999/BBBot/config"
 	"github.com/guatom999/BBBot/modules/botRepositories"
 	"github.com/guatom999/BBBot/utils"
+	"github.com/robfig/cron"
 	"github.com/skip2/go-qrcode"
 )
 
@@ -19,6 +20,8 @@ type (
 		Test() string
 		RandomTarot()
 		Donate(pctx context.Context, price string) string
+		ScheduleGetFollowers()
+		GetFollowers(pctx context.Context) string
 	}
 
 	botUseCase struct {
@@ -41,6 +44,7 @@ func (u *botUseCase) RandomTarot() {
 }
 
 func (u *botUseCase) Donate(pctx context.Context, price string) string {
+
 	ctx, cancel := context.WithTimeout(pctx, time.Second*10)
 	defer cancel()
 
@@ -66,30 +70,48 @@ func (u *botUseCase) Donate(pctx context.Context, price string) string {
 		return ""
 	}
 
-	// folderPath := "./temp"
-	// filePath := folderPath + "/donate.png"
-
-	// fmt.Println("filePath is ", filePath)
-
-	// err = os.MkdirAll(folderPath, os.ModePerm)
-	// if err != nil {
-	// 	fmt.Println("Error creating folder:", err)
-	// }
-
-	// // Create the file in the specific folder
-	// file, err := os.Create(filePath)
-	// if err != nil {
-	// 	fmt.Println("Error creating file:", err)
-
-	// }
-	// defer file.Close()
-
-	// _, err = file.Write(png)
-	// if err != nil {
-	// 	log.Printf("Error: Failed to Write File: %v", err)
-	// }
-
-	// imageUrl := "localhost:27017/temp/dobate.png"
-
 	return fileUrl
+}
+
+func (u *botUseCase) ScheduleGetFollowers() {
+
+	location, _ := time.LoadLocation("Asia/Bangkok")
+
+	c := cron.NewWithLocation(location)
+	if err := c.AddFunc("@every 1m", func() {
+		go func() {
+			if err := u.botRepo.GetFollowers(u.cfg.User.Username, u.cfg.User.Password); err != nil {
+				log.Printf("Error: Failed to Get Followers: %v", err)
+			}
+		}()
+	}); err != nil {
+		log.Printf("Error: Failed to AddFunc: %v", err)
+	}
+
+	c.Start()
+}
+
+func (u *botUseCase) GetFollowers(pctx context.Context) string {
+
+	lastFollowers := u.botRepo.GetLastFollowers()
+	nowFollowers := u.botRepo.GetNowFollowers()
+
+	return u.difference(lastFollowers, nowFollowers)
+}
+
+func (u *botUseCase) difference(a, b []string) string {
+	m := make(map[string]struct{}, 0)
+
+	for _, s := range b {
+		m[s] = struct{}{}
+	}
+
+	var diff string
+	for _, s := range a {
+		if _, found := m[s]; !found {
+			diff += fmt.Sprintf("%s ", s)
+		}
+	}
+
+	return diff
 }

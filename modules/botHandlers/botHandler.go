@@ -12,6 +12,7 @@ type (
 	IBotHandler interface {
 		Help(s *discordgo.Session, i *discordgo.InteractionCreate)
 		Donate(s *discordgo.Session, i *discordgo.InteractionCreate)
+		GetFollowers(s *discordgo.Session, i *discordgo.InteractionCreate)
 	}
 
 	botHandler struct {
@@ -68,6 +69,23 @@ func (h *botHandler) Donate(s *discordgo.Session, i *discordgo.InteractionCreate
 					},
 				},
 			},
+		},
+	})
+
+}
+
+func (h *botHandler) GetFollowers(s *discordgo.Session, i *discordgo.InteractionCreate) {
+
+	ctx := context.Background()
+
+	// time.Sleep(5 * time.Second)
+
+	unfollwedList := h.botUseCase.GetFollowers(ctx)
+
+	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: unfollwedList,
 		},
 	})
 
