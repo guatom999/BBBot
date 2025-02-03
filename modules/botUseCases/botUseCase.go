@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
+	"github.com/bwmarrin/discordgo"
 	"github.com/guatom999/BBBot/config"
 	"github.com/guatom999/BBBot/modules/botRepositories"
 	"github.com/guatom999/BBBot/utils"
@@ -20,7 +21,7 @@ type (
 		Test() string
 		RandomTarot()
 		Donate(pctx context.Context, price string) string
-		ScheduleGetFollowers()
+		ScheduleGetFollowers(session *discordgo.Session)
 		GetFollowers(pctx context.Context) string
 	}
 
@@ -53,8 +54,6 @@ func (u *botUseCase) Donate(pctx context.Context, price string) string {
 		log.Printf("Error: Prices is Invalid: %v", err)
 	}
 
-	fmt.Println("convertPrice :::::::::>", convertPrice)
-
 	rawQrcode := utils.GenQRCode(u.cfg, convertPrice)
 
 	var png []byte
@@ -73,15 +72,31 @@ func (u *botUseCase) Donate(pctx context.Context, price string) string {
 	return fileUrl
 }
 
-func (u *botUseCase) ScheduleGetFollowers() {
+func (u *botUseCase) ScheduleGetFollowers(session *discordgo.Session) {
 
 	location, _ := time.LoadLocation("Asia/Bangkok")
 
 	c := cron.NewWithLocation(location)
-	if err := c.AddFunc("@every 1m", func() {
+	if err := c.AddFunc("@every 25m", func() {
 		go func() {
-			if err := u.botRepo.GetFollowers(u.cfg.User.Username, u.cfg.User.Password); err != nil {
+			if err := u.botRepo.GetFollowers(u.cfg.User.Username, u.cfg.User.Password, "l3adzboss"); err != nil {
 				log.Printf("Error: Failed to Get Followers: %v", err)
+			}
+		}()
+
+	}); err != nil {
+		log.Printf("Error: Failed to AddFunc: %v", err)
+	}
+
+	if err := c.AddFunc("@every 5m", func() {
+		go func() {
+			time.Sleep(time.Second * 10)
+			lastFollowers := u.botRepo.GetLastFollowers()
+			nowFollowers := u.botRepo.GetNowFollowers()
+
+			diff := u.difference(lastFollowers, nowFollowers)
+			if diff != "" {
+				session.ChannelMessageSend("1171470545225793576", fmt.Sprintf("Unfollowed are: %s", diff))
 			}
 		}()
 	}); err != nil {
@@ -96,10 +111,15 @@ func (u *botUseCase) GetFollowers(pctx context.Context) string {
 	lastFollowers := u.botRepo.GetLastFollowers()
 	nowFollowers := u.botRepo.GetNowFollowers()
 
+	fmt.Printf("lastFollowers length: %d\n", len(lastFollowers))
+	fmt.Printf("nowFollowers length: %d\n", len(nowFollowers))
+
 	return u.difference(lastFollowers, nowFollowers)
 }
 
 func (u *botUseCase) difference(a, b []string) string {
+
+	fmt.Println("a", len(a), "b", len(b))
 	m := make(map[string]struct{}, 0)
 
 	for _, s := range b {
@@ -109,7 +129,7 @@ func (u *botUseCase) difference(a, b []string) string {
 	var diff string
 	for _, s := range a {
 		if _, found := m[s]; !found {
-			diff += fmt.Sprintf("%s ", s)
+			diff += s + "\n"
 		}
 	}
 

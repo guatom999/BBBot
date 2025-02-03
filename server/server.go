@@ -52,7 +52,7 @@ func (s *discordServer) Start() {
 	}
 
 	module := InitModule(s, s.cfg)
-	module.BotinfoModule().Init()
+	module.BotinfoModule(s.dg).Init()
 
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(s.commands))
 	for i, v := range s.commands {

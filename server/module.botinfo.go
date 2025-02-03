@@ -55,7 +55,7 @@ type (
 	}
 )
 
-func (m *module) BotinfoModule() IBotinfoModule {
+func (m *module) BotinfoModule(session *discordgo.Session) IBotinfoModule {
 
 	ctx := context.Background()
 
@@ -68,7 +68,7 @@ func (m *module) BotinfoModule() IBotinfoModule {
 	botfoUseCase := botUseCases.NewBotUseCase(botRepository, m.cfg, gcpCli)
 	botfoHandler := botHandlers.NewBotHandler(botfoUseCase)
 
-	botfoUseCase.ScheduleGetFollowers()
+	botfoUseCase.ScheduleGetFollowers(session)
 
 	return &botInfoModule{
 		module:     m,

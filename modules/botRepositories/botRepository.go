@@ -12,7 +12,7 @@ import (
 
 type (
 	IBotRepository interface {
-		GetFollowers(username, password string) error
+		GetFollowers(username, password, target string) error
 		GetLastFollowers() []string
 		GetNowFollowers() []string
 	}
@@ -25,7 +25,34 @@ func NewBotRepository() IBotRepository {
 	return &botRepository{}
 }
 
-func (r *botRepository) GetFollowers(username, password string) error {
+// func (r *botRepository) GetUserFollowers(username, password, target string) error {
+
+// 	insta := goinsta.New(username, password)
+// 	if err := insta.Login(); err != nil {
+// 		log.Printf("Failed to login instagram: %s", err.Error())
+// 		return errors.New("failed to login instagram")
+// 	}
+// 	defer insta.Logout()
+
+// 	userData, err := insta.Profiles.ByName(target)
+// 	if err != nil {
+// 		log.Printf("Failed to get user data: %s", err.Error())
+// 		return errors.New("failed to get user data")
+// 	}
+
+// 	followers := userData.Followers()
+// 	var followerUsernames []string
+
+// 	for followers.Next() {
+// 		for _, follower := range followers.Users {
+// 			followerUsernames = append(followerUsernames, follower.Username)
+// 		}
+// 	}
+
+// 	return nil
+// }
+
+func (r *botRepository) GetFollowers(username, password, target string) error {
 	insta := goinsta.New(username, password)
 	if err := insta.Login(); err != nil {
 		log.Printf("Failed to login instagram: %s", err.Error())
@@ -33,7 +60,7 @@ func (r *botRepository) GetFollowers(username, password string) error {
 	}
 	defer insta.Logout()
 
-	user, err := insta.Profiles.ByName(username)
+	user, err := insta.Profiles.ByName(target)
 	if err != nil {
 		return err
 	}
@@ -52,11 +79,12 @@ func (r *botRepository) GetFollowers(username, password string) error {
 
 	for followers.Next() {
 		for _, follower := range followers.Users {
+			fmt.Println("follower", follower.Username)
 			writer.Write([]string{follower.Username})
 		}
 	}
 
-	fmt.Println("Write successfully")
+	log.Printf("Write followers_now.csv successfully")
 
 	return nil
 }

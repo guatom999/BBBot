@@ -8,7 +8,7 @@ import (
 type (
 	IModules interface {
 		GetCommandHandler() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)
-		BotinfoModule() IBotinfoModule
+		BotinfoModule(session *discordgo.Session) IBotinfoModule
 	}
 
 	module struct {
