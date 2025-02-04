@@ -3,8 +3,10 @@ package server
 import (
 	"context"
 	"log"
+	"sync"
 
 	"cloud.google.com/go/storage"
+	"github.com/ahmdrz/goinsta/v2"
 	"github.com/bwmarrin/discordgo"
 	"github.com/guatom999/BBBot/modules/botHandlers"
 	"github.com/guatom999/BBBot/modules/botRepositories"
@@ -18,7 +20,8 @@ var (
 			Description: "Test",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Name:        "feature",
+					Name: "feature",
+
 					Description: "Test Bot",
 					Type:        discordgo.ApplicationCommandOptionString,
 				},
@@ -41,6 +44,8 @@ var (
 			// Options: []*discordgo.ApplicationCommandOption
 		},
 	}
+	instaBot *goinsta.Instagram
+	once     sync.Once
 )
 
 type (
@@ -59,12 +64,19 @@ func (m *module) BotinfoModule(session *discordgo.Session) IBotinfoModule {
 
 	ctx := context.Background()
 
+	once.Do(func() {
+		instaBot = goinsta.New(m.cfg.User.Username, m.cfg.User.Password)
+		if err := instaBot.Login(); err != nil {
+			log.Fatalf("Failed to login instagram: %s", err.Error())
+		}
+	})
+
 	gcpCli, err := storage.NewClient(ctx)
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}
 
-	botRepository := botRepositories.NewBotRepository()
+	botRepository := botRepositories.NewBotRepository(instaBot)
 	botfoUseCase := botUseCases.NewBotUseCase(botRepository, m.cfg, gcpCli)
 	botfoHandler := botHandlers.NewBotHandler(botfoUseCase)
 

@@ -16,9 +16,10 @@ type (
 	}
 
 	App struct {
-		Name   string
-		Token  string
-		AppUrl string
+		Name      string
+		Token     string
+		AppUrl    string
+		ChannelID string
 	}
 
 	QrcodeInfo struct {
@@ -50,9 +51,10 @@ func GetConfig(path string) Config {
 
 	return Config{
 		App: App{
-			Name:   viper.GetString("APP_NAME"),
-			Token:  viper.GetString("APP_TOKEN"),
-			AppUrl: viper.GetString("APP_URL"),
+			Name:      viper.GetString("APP_NAME"),
+			Token:     viper.GetString("APP_TOKEN"),
+			AppUrl:    viper.GetString("APP_URL"),
+			ChannelID: viper.GetString("CHANNEL_ID"),
 		},
 		QrcodeInfo: QrcodeInfo{
 			AccountInfo: viper.GetString("PAYMENT_INFO"),

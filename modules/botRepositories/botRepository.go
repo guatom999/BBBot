@@ -3,7 +3,6 @@ package botRepositories
 import (
 	"encoding/csv"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 
@@ -18,11 +17,12 @@ type (
 	}
 
 	botRepository struct {
+		instaBot *goinsta.Instagram
 	}
 )
 
-func NewBotRepository() IBotRepository {
-	return &botRepository{}
+func NewBotRepository(instaBot *goinsta.Instagram) IBotRepository {
+	return &botRepository{instaBot}
 }
 
 // func (r *botRepository) GetUserFollowers(username, password, target string) error {
@@ -53,17 +53,13 @@ func NewBotRepository() IBotRepository {
 // }
 
 func (r *botRepository) GetFollowers(username, password, target string) error {
-	insta := goinsta.New(username, password)
-	if err := insta.Login(); err != nil {
-		log.Printf("Failed to login instagram: %s", err.Error())
-		return errors.New("failed to login instagram")
-	}
-	defer insta.Logout()
 
-	user, err := insta.Profiles.ByName(target)
+	user, err := r.instaBot.Profiles.ByName(target)
 	if err != nil {
+		log.Printf("Failed to get followers : %s", err.Error())
 		return err
 	}
+	defer r.instaBot.Logout()
 
 	followers := user.Followers()
 
@@ -79,7 +75,6 @@ func (r *botRepository) GetFollowers(username, password, target string) error {
 
 	for followers.Next() {
 		for _, follower := range followers.Users {
-			fmt.Println("follower", follower.Username)
 			writer.Write([]string{follower.Username})
 		}
 	}
