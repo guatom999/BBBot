@@ -77,7 +77,7 @@ func (u *botUseCase) ScheduleGetFollowers(session *discordgo.Session) {
 	location, _ := time.LoadLocation("Asia/Bangkok")
 
 	c := cron.NewWithLocation(location)
-	if err := c.AddFunc("@every 1m", func() {
+	if err := c.AddFunc("@every 1h", func() {
 		go func() {
 			if err := u.botRepo.GetFollowers(u.cfg.User.Username, u.cfg.User.Password, "l3adzboss"); err != nil {
 				log.Printf("Error: Failed to Get Followers: %v", err)
@@ -88,7 +88,8 @@ func (u *botUseCase) ScheduleGetFollowers(session *discordgo.Session) {
 		log.Printf("Error: Failed to AddFunc: %v", err)
 	}
 
-	if err := c.AddFunc("@every 1m", func() {
+	if err := c.AddFunc("@every 1h", func() {
+		time.Sleep(time.Second * 20)
 		go func() {
 			time.Sleep(time.Second * 10)
 			lastFollowers := u.botRepo.GetLastFollowers()
