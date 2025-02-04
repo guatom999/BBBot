@@ -11,7 +11,7 @@ import (
 
 type (
 	IBotRepository interface {
-		GetFollowers(username, password, target string) error
+		GetFollowers(target string, isOldFollowers bool) error
 		GetLastFollowers() []string
 		GetNowFollowers() []string
 	}
@@ -52,7 +52,11 @@ func NewBotRepository(instaBot *goinsta.Instagram) IBotRepository {
 // 	return nil
 // }
 
-func (r *botRepository) GetFollowers(username, password, target string) error {
+// func (r *botRepository) UpdateLastFollwers() error {
+
+// }
+
+func (r *botRepository) GetFollowers(target string, isWriteOldFile bool) error {
 
 	user, err := r.instaBot.Profiles.ByName(target)
 	if err != nil {
@@ -63,7 +67,14 @@ func (r *botRepository) GetFollowers(username, password, target string) error {
 
 	followers := user.Followers()
 
-	file, err := os.Create("followers_now.csv")
+	var file *os.File
+
+	if isWriteOldFile {
+		file, err = os.Create("followers_last.csv")
+	} else {
+		file, err = os.Create("followers_now.csv")
+	}
+
 	if err != nil {
 		log.Fatalf("Error: Failed to create file: %v", err)
 		return errors.New("failed to create file")

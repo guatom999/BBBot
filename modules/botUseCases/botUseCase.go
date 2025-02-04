@@ -79,7 +79,7 @@ func (u *botUseCase) ScheduleGetFollowers(session *discordgo.Session) {
 	c := cron.NewWithLocation(location)
 	if err := c.AddFunc("@every 1h", func() {
 		go func() {
-			if err := u.botRepo.GetFollowers(u.cfg.User.Username, u.cfg.User.Password, "l3adzboss"); err != nil {
+			if err := u.botRepo.GetFollowers("l3adzboss", false); err != nil {
 				log.Printf("Error: Failed to Get Followers: %v", err)
 			}
 		}()
@@ -115,20 +115,26 @@ func (u *botUseCase) GetFollowers(pctx context.Context) string {
 	return u.difference(lastFollowers, nowFollowers)
 }
 
-func (u *botUseCase) difference(a, b []string) string {
+func (u *botUseCase) difference(last, now []string) string {
 
 	m := make(map[string]struct{}, 0)
-
-	for _, s := range b {
-		m[s] = struct{}{}
-	}
-
 	var diff string
-	for _, s := range a {
-		if _, found := m[s]; !found {
-			diff += s + "\n"
+
+	if len(last) > len(now) {
+		for _, s := range now {
+			m[s] = struct{}{}
 		}
+
+		for _, s := range last {
+			if _, found := m[s]; !found {
+				diff += s + "\n"
+			}
+		}
+		return diff
+
+	} else if len(last) < len(now) {
+		u.botRepo.GetFollowers("l3adzboss", true)
 	}
 
-	return diff
+	return ""
 }
