@@ -25,37 +25,6 @@ func NewBotRepository(instaBot *goinsta.Instagram) IBotRepository {
 	return &botRepository{instaBot}
 }
 
-// func (r *botRepository) GetUserFollowers(username, password, target string) error {
-
-// 	insta := goinsta.New(username, password)
-// 	if err := insta.Login(); err != nil {
-// 		log.Printf("Failed to login instagram: %s", err.Error())
-// 		return errors.New("failed to login instagram")
-// 	}
-// 	defer insta.Logout()
-
-// 	userData, err := insta.Profiles.ByName(target)
-// 	if err != nil {
-// 		log.Printf("Failed to get user data: %s", err.Error())
-// 		return errors.New("failed to get user data")
-// 	}
-
-// 	followers := userData.Followers()
-// 	var followerUsernames []string
-
-// 	for followers.Next() {
-// 		for _, follower := range followers.Users {
-// 			followerUsernames = append(followerUsernames, follower.Username)
-// 		}
-// 	}
-
-// 	return nil
-// }
-
-// func (r *botRepository) UpdateLastFollwers() error {
-
-// }
-
 func (r *botRepository) GetFollowers(target string, isWriteOldFile bool) error {
 
 	user, err := r.instaBot.Profiles.ByName(target)
@@ -63,7 +32,7 @@ func (r *botRepository) GetFollowers(target string, isWriteOldFile bool) error {
 		log.Printf("Failed to get followers : %s", err.Error())
 		return err
 	}
-	defer r.instaBot.Logout()
+	// defer r.instaBot.Logout()
 
 	followers := user.Followers()
 

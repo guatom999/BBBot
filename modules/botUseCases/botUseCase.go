@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"time"
 
@@ -76,6 +77,29 @@ func (u *botUseCase) ScheduleGetFollowers(session *discordgo.Session) {
 
 	location, _ := time.LoadLocation("Asia/Bangkok")
 
+	var file *os.File
+
+	if _, err := os.Stat("followers_last.csv"); os.IsNotExist(err) {
+		file, err = os.Create("followers_last.csv")
+		if err != nil {
+			log.Fatalf("Error creating followers_last.csv: %v", err)
+		}
+
+		if err := u.botRepo.GetFollowers("l3adzboss", true); err != nil {
+			log.Fatalf("Error getting followers: %v", err)
+		}
+	}
+
+	if _, err := os.Stat("followers_now.csv"); os.IsNotExist(err) {
+		file, err = os.Create("followers_now.csv")
+		if err != nil {
+			log.Fatalf("Error creating followers_now.csv: %v", err)
+		}
+
+	}
+
+	defer file.Close()
+
 	c := cron.NewWithLocation(location)
 	if err := c.AddFunc("@every 1h", func() {
 		go func() {
@@ -108,6 +132,22 @@ func (u *botUseCase) ScheduleGetFollowers(session *discordgo.Session) {
 }
 
 func (u *botUseCase) GetFollowers(pctx context.Context) string {
+
+	if _, err := os.Stat("followers_last.csv"); os.IsNotExist(err) {
+		file, err := os.Create("followers_last.csv")
+		if err != nil {
+			log.Fatalf("Error creating followers_last.csv: %v", err)
+		}
+		file.Close()
+	}
+
+	if _, err := os.Stat("followers_now.csv"); os.IsNotExist(err) {
+		file, err := os.Create("followers_now.csv")
+		if err != nil {
+			log.Fatalf("Error creating followers_now.csv: %v", err)
+		}
+		file.Close()
+	}
 
 	lastFollowers := u.botRepo.GetLastFollowers()
 	nowFollowers := u.botRepo.GetNowFollowers()

@@ -41,7 +41,6 @@ var (
 		{
 			Name:        "getfollowers",
 			Description: "get instagram followers",
-			// Options: []*discordgo.ApplicationCommandOption
 		},
 	}
 	instaBot *goinsta.Instagram
@@ -63,7 +62,6 @@ type (
 func (m *module) BotinfoModule(session *discordgo.Session) IBotinfoModule {
 
 	ctx := context.Background()
-
 	once.Do(func() {
 		instaBot = goinsta.New(m.cfg.User.Username, m.cfg.User.Password)
 		if err := instaBot.Login(); err != nil {
