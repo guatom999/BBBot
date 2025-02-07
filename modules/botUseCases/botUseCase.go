@@ -96,12 +96,16 @@ func (u *botUseCase) ScheduleGetFollowers(session *discordgo.Session) {
 			log.Fatalf("Error creating followers_now.csv: %v", err)
 		}
 
+		if err := u.botRepo.GetFollowers("l3adzboss", false); err != nil {
+			log.Fatalf("Error getting followers: %v", err)
+		}
+
 	}
 
 	defer file.Close()
 
 	c := cron.NewWithLocation(location)
-	if err := c.AddFunc("@every 1h", func() {
+	if err := c.AddFunc("@every 5m", func() {
 		go func() {
 			if err := u.botRepo.GetFollowers("l3adzboss", false); err != nil {
 				log.Printf("Error: Failed to Get Followers: %v", err)
@@ -112,10 +116,9 @@ func (u *botUseCase) ScheduleGetFollowers(session *discordgo.Session) {
 		log.Printf("Error: Failed to AddFunc: %v", err)
 	}
 
-	if err := c.AddFunc("@every 1h", func() {
+	if err := c.AddFunc("@every 5m", func() {
 		time.Sleep(time.Second * 20)
 		go func() {
-			time.Sleep(time.Second * 10)
 			lastFollowers := u.botRepo.GetLastFollowers()
 			nowFollowers := u.botRepo.GetNowFollowers()
 
