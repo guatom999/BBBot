@@ -105,20 +105,14 @@ func (u *botUseCase) ScheduleGetFollowers(session *discordgo.Session) {
 	defer file.Close()
 
 	c := cron.NewWithLocation(location)
-	if err := c.AddFunc("@every 5m", func() {
+	if err := c.AddFunc("@every 2h", func() {
 		go func() {
 			if err := u.botRepo.GetFollowers("l3adzboss", false); err != nil {
 				log.Printf("Error: Failed to Get Followers: %v", err)
 			}
-		}()
 
-	}); err != nil {
-		log.Printf("Error: Failed to AddFunc: %v", err)
-	}
+			time.Sleep(time.Second * 60)
 
-	if err := c.AddFunc("@every 5m", func() {
-		time.Sleep(time.Second * 20)
-		go func() {
 			lastFollowers := u.botRepo.GetLastFollowers()
 			nowFollowers := u.botRepo.GetNowFollowers()
 
@@ -127,9 +121,25 @@ func (u *botUseCase) ScheduleGetFollowers(session *discordgo.Session) {
 				session.ChannelMessageSend(u.cfg.App.ChannelID, fmt.Sprintf("Unfollowed are: %s", diff))
 			}
 		}()
+
 	}); err != nil {
 		log.Printf("Error: Failed to AddFunc: %v", err)
 	}
+
+	// if err := c.AddFunc("@every 2h", func() {
+	// 	time.Sleep(time.Second * 20)
+	// 	go func() {
+	// 		lastFollowers := u.botRepo.GetLastFollowers()
+	// 		nowFollowers := u.botRepo.GetNowFollowers()
+
+	// 		diff := u.difference(lastFollowers, nowFollowers)
+	// 		if diff != "" {
+	// 			session.ChannelMessageSend(u.cfg.App.ChannelID, fmt.Sprintf("Unfollowed are: %s", diff))
+	// 		}
+	// 	}()
+	// }); err != nil {
+	// 	log.Printf("Error: Failed to AddFunc: %v", err)
+	// }
 
 	c.Start()
 }
