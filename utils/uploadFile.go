@@ -14,6 +14,10 @@ import (
 
 func UploadFile(cfg *config.Config, client *storage.Client, pctx context.Context, data []byte) (string, error) {
 
+	if client == nil {
+		return "", errors.New("storage client is nil")
+	}
+
 	ctx, cancel := context.WithTimeout(pctx, time.Second*50)
 	defer cancel()
 

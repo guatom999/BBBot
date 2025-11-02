@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"log"
-	"sync"
 
 	"cloud.google.com/go/storage"
 	"github.com/ahmdrz/goinsta/v2"
@@ -38,13 +37,21 @@ var (
 				},
 			},
 		},
+		// {
+		// 	Name:        "play",
+		// 	Description: "let bot to join channel",
+		// },
+		{
+			Name:        "leave",
+			Description: "force bot to leave channel",
+		},
 		{
 			Name:        "getfollowers",
 			Description: "get instagram followers",
 		},
 	}
 	instaBot *goinsta.Instagram
-	once     sync.Once
+	// once     sync.Once
 )
 
 type (
@@ -62,23 +69,27 @@ type (
 func (m *module) BotinfoModule(session *discordgo.Session) IBotinfoModule {
 
 	ctx := context.Background()
-	once.Do(func() {
-		instaBot = goinsta.New(m.cfg.User.Username, m.cfg.User.Password)
-		if err := instaBot.Login(); err != nil {
-			log.Fatalf("Failed to login instagram: %s", err.Error())
-		}
-	})
+	// once.Do(func() {
+	// 	instaBot = goinsta.New(m.cfg.User.Username, m.cfg.User.Password)
+	// 	if err := instaBot.Login(); err != nil {
+	// 		log.Fatalf("Failed to login instagram: %s", err.Error())
+	// 	}
+	// })
 
 	gcpCli, err := storage.NewClient(ctx)
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}
 
+	instaBot = nil
+
 	botRepository := botRepositories.NewBotRepository(instaBot)
-	botfoUseCase := botUseCases.NewBotUseCase(botRepository, m.cfg, gcpCli)
+	botfoUseCase := botUseCases.NewBotUseCase(botRepository, m.cfg, m.discordServer.dg, gcpCli)
 	botfoHandler := botHandlers.NewBotHandler(botfoUseCase)
 
-	botfoUseCase.ScheduleGetFollowers(session)
+	go botfoUseCase.MonitoringTicketShopServer()
+
+	// botfoUseCase.ScheduleGetFollowers(session)
 
 	return &botInfoModule{
 		module:     m,
@@ -89,6 +100,9 @@ func (m *module) BotinfoModule(session *discordgo.Session) IBotinfoModule {
 
 func (b *botInfoModule) Init() {
 	b.module.discordServer.commands = commands
+
+	// b.module.commandHandler["play"] = b.botHandler.Play
+	b.module.commandHandler["leave"] = b.botHandler.Leave
 
 	b.module.commandHandler["test"] = b.botHandler.Help
 	b.module.commandHandler["donate"] = b.botHandler.Donate

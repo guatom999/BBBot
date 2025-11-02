@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"flag"
 	"log"
 	"os"
@@ -11,8 +12,6 @@ import (
 )
 
 var (
-	// GuildID = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
-	GuildID        = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
 	RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutdowning or not")
 )
 
@@ -43,6 +42,7 @@ func NewDiscordServer(cfg *config.Config) IDiscordServer {
 }
 
 func (s *discordServer) Start() {
+
 	s.dg.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v # %v", s.State.User.Username, s.State.User.Discriminator)
 	})
@@ -56,7 +56,7 @@ func (s *discordServer) Start() {
 
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(s.commands))
 	for i, v := range s.commands {
-		cmd, err := s.dg.ApplicationCommandCreate(s.dg.State.User.ID, *GuildID, v)
+		cmd, err := s.dg.ApplicationCommandCreate(s.dg.State.User.ID, s.cfg.App.GuildID, v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
@@ -75,17 +75,22 @@ func (s *discordServer) Start() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	log.Println("Press Ctrl + C to exit")
+
+	restServer := NewEchoServer(s.dg, s.cfg)
+	restServer.Start(context.Background())
+
 	<-stop
 
 	if *RemoveCommands {
 		log.Println("Removing commands...")
 
 		for _, v := range registeredCommands {
-			err := s.dg.ApplicationCommandDelete(s.dg.State.User.ID, *GuildID, v.ID)
+			err := s.dg.ApplicationCommandDelete(s.dg.State.User.ID, s.cfg.App.GuildID, v.ID)
 			if err != nil {
 				log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
 			}
 		}
+		restServer.GracefulShutdown(context.Background(), stop)
 	}
 
 	log.Println("Gracefully shutting down.")
