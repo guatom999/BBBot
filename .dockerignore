@@ -1,0 +1,9 @@
+.git
+.gitignore
+
+LICENSE
+README.md
+
+command_deploy.txt
+
+/temp*

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/guatom999/BBBot/config"
 	"github.com/guatom999/BBBot/modules/botUseCases"
 )
 
@@ -13,15 +14,20 @@ type (
 		Help(s *discordgo.Session, i *discordgo.InteractionCreate)
 		Donate(s *discordgo.Session, i *discordgo.InteractionCreate)
 		GetFollowers(s *discordgo.Session, i *discordgo.InteractionCreate)
+		// Play(s *discordgo.Session, i *discordgo.InteractionCreate)
+		Leave(s *discordgo.Session, i *discordgo.InteractionCreate)
 	}
 
 	botHandler struct {
+		cfg        *config.Config
 		botUseCase botUseCases.IBotUseCase
 	}
 )
 
-func NewBotHandler(botUseCase botUseCases.IBotUseCase) IBotHandler {
-	return &botHandler{botUseCase: botUseCase}
+var ChannelID string
+
+func NewBotHandler(botUseCase botUseCases.IBotUseCase, cfg *config.Config) IBotHandler {
+	return &botHandler{botUseCase: botUseCase, cfg: cfg}
 }
 
 func (h *botHandler) Help(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -72,6 +78,57 @@ func (h *botHandler) Donate(s *discordgo.Session, i *discordgo.InteractionCreate
 		},
 	})
 
+}
+
+// func (h *botHandler) Play(s *discordgo.Session, i *discordgo.InteractionCreate) {
+
+// 	ctx := context.Background()
+
+// 	// time.Sleep(5 * time.Second)
+
+// 	unfollwedList := h.botUseCase.GetFollowers(ctx)
+
+// 	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+// 		Type: discordgo.InteractionResponseChannelMessageWithSource,
+// 		Data: &discordgo.InteractionResponseData{
+// 			Content: unfollwedList,
+// 		},
+// 	})
+
+// 	// utils.DownloadYouTubeAudio("https://www.youtube.com/watch?v=8mLCaXvVPas")
+// 	utils.DownloadYouTubeAudio("https://www.youtube.com/watch?v=Vw1mNzIIBpw")
+
+// 	guild, err := s.State.Guild(GuildID)
+// 	if err != nil {
+// 		fmt.Println("Error finding guild:", err)
+// 		return
+// 	}
+
+// 	for _, vs := range guild.VoiceStates {
+// 		if vs.ChannelID != "" {
+// 			ChannelID = vs.ChannelID
+// 			break
+// 		}
+// 	}
+
+// 	vc, err := s.ChannelVoiceJoin(GuildID, ChannelID, false, false)
+// 	if err != nil {
+// 		fmt.Println("error: failed to join Voice Channel")
+// 		return
+// 	}
+// 	defer vc.Disconnect()
+
+// 	pkg.PlayAudio(vc)
+
+// 	// s.ChannelMessageSend(ChannelID, "You must be in a voice channel!")
+
+// }
+
+func (h *botHandler) Leave(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	vc, err := s.ChannelVoiceJoin(h.cfg.App.GuildID, "", false, false)
+	if err == nil {
+		vc.Disconnect()
+	}
 }
 
 func (h *botHandler) GetFollowers(s *discordgo.Session, i *discordgo.InteractionCreate) {

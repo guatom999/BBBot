@@ -12,6 +12,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/guatom999/BBBot/config"
 	"github.com/guatom999/BBBot/modules/botRepositories"
+	"github.com/guatom999/BBBot/pkg/requests"
 	"github.com/guatom999/BBBot/utils"
 	"github.com/robfig/cron"
 	"github.com/skip2/go-qrcode"
@@ -24,17 +25,29 @@ type (
 		Donate(pctx context.Context, price string) string
 		ScheduleGetFollowers(session *discordgo.Session)
 		GetFollowers(pctx context.Context) string
+		MonitoringTicketShopServer()
 	}
 
 	botUseCase struct {
 		botRepo botRepositories.IBotRepository
 		cfg     *config.Config
+		session *discordgo.Session
 		cl      *storage.Client
 	}
 )
 
-func NewBotUseCase(botRepo botRepositories.IBotRepository, config *config.Config, cli *storage.Client) IBotUseCase {
-	return &botUseCase{botRepo: botRepo, cfg: config, cl: cli}
+func NewBotUseCase(
+	botRepo botRepositories.IBotRepository,
+	config *config.Config,
+	session *discordgo.Session,
+	cli *storage.Client,
+) IBotUseCase {
+	return &botUseCase{
+		botRepo: botRepo,
+		cfg:     config,
+		session: session,
+		cl:      cli,
+	}
 }
 
 func (u *botUseCase) Test() string {
@@ -61,7 +74,7 @@ func (u *botUseCase) Donate(pctx context.Context, price string) string {
 
 	png, err = qrcode.Encode(rawQrcode, qrcode.Medium, 256)
 	if err != nil {
-		log.Printf("Error: Failed to Generate QR Code: %v", err)
+		log.Printf("Error: Failed to Encode Qr Code: %v", err)
 	}
 
 	fileUrl, err := utils.UploadFile(u.cfg, u.cl, ctx, png)
@@ -142,6 +155,38 @@ func (u *botUseCase) ScheduleGetFollowers(session *discordgo.Session) {
 	// }
 
 	c.Start()
+}
+
+func (u *botUseCase) MonitoringTicketShopServer() {
+
+	monitorList := []string{
+		"http://45.144.167.78:8090/movie/health",
+		"http://45.144.167.78:8103/payment/health",
+		"http://45.144.167.78:8102/ticket/health",
+		"http://45.144.167.78:8101/inventory/health",
+		"http://45.144.167.78:8100/user/health",
+	}
+
+	serviceNameList := []string{
+		"movie",
+		"payment",
+		"ticket",
+		"inventory",
+		"user",
+	}
+
+	for {
+		time.Sleep(time.Second * 10)
+		for i, list := range monitorList {
+			_, err := requests.NewRequest().Get(list)
+			if err != nil {
+				log.Printf("Error: Failed to Get Health: %v", err)
+				u.session.ChannelMessageSend(u.cfg.App.ChannelID, fmt.Sprintf("มีเรื่องแล้ว service %s แตก", serviceNameList[i]))
+			}
+		}
+
+	}
+
 }
 
 func (u *botUseCase) GetFollowers(pctx context.Context) string {

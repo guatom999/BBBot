@@ -13,13 +13,18 @@ type (
 		Gcp        Gcp
 		QrcodeInfo QrcodeInfo
 		User       User
+		EchoApp    EchoApp
 	}
 
+	EchoApp struct {
+		Port string
+	}
 	App struct {
 		Name      string
 		Token     string
 		AppUrl    string
 		ChannelID string
+		GuildID   string
 	}
 
 	QrcodeInfo struct {
@@ -55,6 +60,7 @@ func GetConfig(path string) Config {
 			Token:     viper.GetString("APP_TOKEN"),
 			AppUrl:    viper.GetString("APP_URL"),
 			ChannelID: viper.GetString("CHANNEL_ID"),
+			GuildID:   viper.GetString("GUILD_ID"),
 		},
 		QrcodeInfo: QrcodeInfo{
 			AccountInfo: viper.GetString("PAYMENT_INFO"),
@@ -67,6 +73,9 @@ func GetConfig(path string) Config {
 		User: User{
 			Username: viper.GetString("IG_USERNAME"),
 			Password: viper.GetString("IG_PASSWORD"),
+		},
+		EchoApp: EchoApp{
+			Port: viper.GetString("ECHO_PORT"),
 		},
 	}
 }

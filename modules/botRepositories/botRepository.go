@@ -22,7 +22,7 @@ type (
 )
 
 func NewBotRepository(instaBot *goinsta.Instagram) IBotRepository {
-	return &botRepository{instaBot}
+	return &botRepository{instaBot: nil}
 }
 
 func (r *botRepository) GetFollowers(target string, isWriteOldFile bool) error {
