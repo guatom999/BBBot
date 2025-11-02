@@ -32,3 +32,5 @@ sum.go
 env/
 
 *.csv
+
+/temp*
