@@ -22,10 +22,14 @@ type (
 )
 
 func NewBotRepository(instaBot *goinsta.Instagram) IBotRepository {
-	return &botRepository{instaBot: nil}
+	return &botRepository{instaBot: instaBot}
 }
 
 func (r *botRepository) GetFollowers(target string, isWriteOldFile bool) error {
+	if r.instaBot == nil {
+		log.Printf("Error: Instagram client is not initialized")
+		return errors.New("instagram client is not configured")
+	}
 
 	user, err := r.instaBot.Profiles.ByName(target)
 	if err != nil {
