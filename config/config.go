@@ -68,7 +68,7 @@ func GetConfig(path string) Config {
 		Gcp: Gcp{
 			BucketName: viper.GetString("GCP_BUCKET_NAME"),
 			UploadPath: viper.GetString("GCP_UPLOAD_PATH"),
-			FileLimit:  int64(viper.GetInt("GCP_UPLOAD_PATH")),
+			FileLimit:  viper.GetInt64("GCP_FILE_LIMIT"),
 		},
 		User: User{
 			Username: viper.GetString("IG_USERNAME"),

@@ -1,2 +1,1 @@
-[] Add Ci Response Status with embeded message
-[]
+DiscordBot For take response From CI/CD and some tool for myself
