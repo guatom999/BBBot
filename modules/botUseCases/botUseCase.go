@@ -23,6 +23,7 @@ type (
 		Test() string
 		RandomTarot()
 		Donate(pctx context.Context, price string) string
+		DisconnectAllMembers(session *discordgo.Session, guildID string) error
 		ScheduleGetFollowers(session *discordgo.Session)
 		GetFollowers(pctx context.Context) string
 		MonitoringTicketShopServer()
@@ -84,6 +85,36 @@ func (u *botUseCase) Donate(pctx context.Context, price string) string {
 	}
 
 	return fileUrl
+}
+
+func (u *botUseCase) DisconnectAllMembers(session *discordgo.Session, guildID string) error {
+	guild, err := session.State.Guild(guildID)
+	if err != nil {
+		guild, err = session.Guild(guildID)
+		if err != nil {
+			return fmt.Errorf("failed to get guild: %w", err)
+		}
+	}
+	disconnectedCount := 0
+
+	for _, voiceState := range guild.VoiceStates {
+		if voiceState.UserID == session.State.User.ID {
+			continue
+		}
+
+		err := session.GuildMemberMove(guildID, voiceState.UserID, nil)
+		if err != nil {
+			log.Printf("Failed to disconnect user %s: %v", voiceState.UserID, err)
+			continue
+		}
+
+		disconnectedCount++
+
+		time.Sleep(500 * time.Millisecond)
+	}
+
+	log.Printf("Disconnected %d members from voice channels", disconnectedCount)
+	return nil
 }
 
 func (u *botUseCase) ScheduleGetFollowers(session *discordgo.Session) {

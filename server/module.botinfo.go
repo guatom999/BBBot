@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"log"
+	"sync"
 
 	"cloud.google.com/go/storage"
 	"github.com/ahmdrz/goinsta/v2"
@@ -37,10 +38,6 @@ var (
 				},
 			},
 		},
-		// {
-		// 	Name:        "play",
-		// 	Description: "let bot to join channel",
-		// },
 		{
 			Name:        "leave",
 			Description: "force bot to leave channel",
@@ -49,9 +46,13 @@ var (
 			Name:        "getfollowers",
 			Description: "get instagram followers",
 		},
+		{
+			Name:        "greenapple",
+			Description: "greenapple",
+		},
 	}
 	instaBot *goinsta.Instagram
-	// once     sync.Once
+	once     sync.Once
 )
 
 type (
@@ -72,7 +73,8 @@ func (m *module) BotinfoModule(session *discordgo.Session) IBotinfoModule {
 	// once.Do(func() {
 	// 	instaBot = goinsta.New(m.cfg.User.Username, m.cfg.User.Password)
 	// 	if err := instaBot.Login(); err != nil {
-	// 		log.Fatalf("Failed to login instagram: %s", err.Error())
+	// 		// log.Fatalf("Failed to login instagram: %v", err)
+	// 		log.Println("Failed to login instagram: ", err)
 	// 	}
 	// })
 
@@ -85,9 +87,9 @@ func (m *module) BotinfoModule(session *discordgo.Session) IBotinfoModule {
 
 	botRepository := botRepositories.NewBotRepository(instaBot)
 	botfoUseCase := botUseCases.NewBotUseCase(botRepository, m.cfg, m.discordServer.dg, gcpCli)
-	botfoHandler := botHandlers.NewBotHandler(botfoUseCase)
+	botfoHandler := botHandlers.NewBotHandler(botfoUseCase, m.cfg)
 
-	go botfoUseCase.MonitoringTicketShopServer()
+	// go botfoUseCase.MonitoringTicketShopServer()
 
 	// botfoUseCase.ScheduleGetFollowers(session)
 
@@ -103,8 +105,8 @@ func (b *botInfoModule) Init() {
 
 	// b.module.commandHandler["play"] = b.botHandler.Play
 	b.module.commandHandler["leave"] = b.botHandler.Leave
-
 	b.module.commandHandler["test"] = b.botHandler.Help
 	b.module.commandHandler["donate"] = b.botHandler.Donate
 	b.module.commandHandler["getfollowers"] = b.botHandler.GetFollowers
+	b.module.commandHandler["greenapple"] = b.botHandler.DisconnectAllMembers
 }

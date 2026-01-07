@@ -14,6 +14,7 @@ type (
 		Help(s *discordgo.Session, i *discordgo.InteractionCreate)
 		Donate(s *discordgo.Session, i *discordgo.InteractionCreate)
 		GetFollowers(s *discordgo.Session, i *discordgo.InteractionCreate)
+		DisconnectAllMembers(s *discordgo.Session, i *discordgo.InteractionCreate)
 		// Play(s *discordgo.Session, i *discordgo.InteractionCreate)
 		Leave(s *discordgo.Session, i *discordgo.InteractionCreate)
 	}
@@ -123,6 +124,24 @@ func (h *botHandler) Donate(s *discordgo.Session, i *discordgo.InteractionCreate
 // 	// s.ChannelMessageSend(ChannelID, "You must be in a voice channel!")
 
 // }
+
+func (h *botHandler) DisconnectAllMembers(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	if err := h.botUseCase.DisconnectAllMembers(s, h.cfg.App.GuildID); err != nil {
+		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: "Error: " + err.Error(),
+			},
+		})
+	}
+
+	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: "Green apple",
+		},
+	})
+}
 
 func (h *botHandler) Leave(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	vc, err := s.ChannelVoiceJoin(h.cfg.App.GuildID, "", false, false)
