@@ -14,6 +14,7 @@ type (
 		QrcodeInfo QrcodeInfo
 		User       User
 		EchoApp    EchoApp
+		FileConfig FileConfig
 	}
 
 	EchoApp struct {
@@ -40,6 +41,9 @@ type (
 	User struct {
 		Username string
 		Password string
+	}
+	FileConfig struct {
+		FolderPath string
 	}
 )
 
@@ -76,6 +80,9 @@ func GetConfig(path string) Config {
 		},
 		EchoApp: EchoApp{
 			Port: viper.GetString("ECHO_PORT"),
+		},
+		FileConfig: FileConfig{
+			FolderPath: viper.GetString("FOLDER_PATH"),
 		},
 	}
 }
