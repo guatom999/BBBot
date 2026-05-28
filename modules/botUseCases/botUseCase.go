@@ -1,6 +1,7 @@
 package botUseCases
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
@@ -22,7 +23,7 @@ type (
 	IBotUseCase interface {
 		Test() string
 		RandomTarot()
-		Donate(pctx context.Context, price string) string
+		Donate(pctx context.Context, price string) *bytes.Buffer
 		DisconnectAllMembers(session *discordgo.Session, guildID string) error
 		ScheduleGetFollowers(session *discordgo.Session)
 		GetFollowers(pctx context.Context) string
@@ -59,7 +60,8 @@ func (u *botUseCase) RandomTarot() {
 
 }
 
-func (u *botUseCase) Donate(pctx context.Context, price string) string {
+// func (u *botUseCase) Donate(pctx context.Context, price string) string {
+func (u *botUseCase) Donate(pctx context.Context, price string) *bytes.Buffer {
 
 	ctx, cancel := context.WithTimeout(pctx, time.Second*10)
 	defer cancel()
@@ -81,7 +83,7 @@ func (u *botUseCase) Donate(pctx context.Context, price string) string {
 	fileUrl, err := utils.UploadFile(u.cfg, u.cl, ctx, png)
 	if err != nil {
 		log.Printf("Error: Failed to Generate QR Code: %v", err)
-		return ""
+		return nil
 	}
 
 	return fileUrl

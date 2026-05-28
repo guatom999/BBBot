@@ -39,6 +39,17 @@ var (
 			},
 		},
 		{
+			Name:        "play",
+			Description: "play music",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Name:        "url",
+					Description: "music url",
+					Type:        discordgo.ApplicationCommandOptionString,
+				},
+			},
+		},
+		{
 			Name:        "leave",
 			Description: "force bot to leave channel",
 		},

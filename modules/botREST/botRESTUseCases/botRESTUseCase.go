@@ -32,14 +32,23 @@ func NewEchoUserCase(session *discordgo.Session, cfg *config.Config) EchoServerI
 func (s *echoServer) Send(message *botREST.InCommingMessage) error {
 
 	embeded := &discordgo.MessageEmbed{
-		Title:       "ci alert",
+		Title:       fmt.Sprintf("CI Alert for Project %s", message.ProjectName),
 		Description: message.ProjectName,
 		Timestamp:   utils.GetLocalBkkTime().Format("2006-01-02T15:04:05Z07:00"),
-		Color:       0xFF0040,
+		Color:       message.Color,
 		Fields: []*discordgo.MessageEmbedField{
 			{
-				Name:   "ci failed",
-				Value:  fmt.Sprintf("error occurred cause %s", message.Status),
+				Name: func(status string) string {
+					switch status {
+					case "success":
+						return "✅ Status"
+					case "failed":
+						return "❌ Status"
+					default:
+						return "❓ Status"
+					}
+				}(message.Status),
+				Value:  message.Message,
 				Inline: true,
 			},
 		},
