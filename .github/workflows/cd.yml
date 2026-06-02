@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  DOCKER_IMAGE: ${{ secrets.DOCKER_USERNAME }}/bbbot
+
 jobs:
   build-and-push:
     name: Build and Push to Docker Hub
@@ -39,6 +42,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-
-    
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
