@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/spf13/viper"
@@ -47,10 +46,10 @@ type (
 	}
 )
 
-func GetConfig(path string) Config {
+func GetConfig() Config {
 	viper.SetConfigName(".env")
 	viper.SetConfigType("env")
-	viper.AddConfigPath(fmt.Sprintf("./" + path))
+	viper.AddConfigPath("./env")
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {

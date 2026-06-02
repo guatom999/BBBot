@@ -13,6 +13,5 @@ FROM debian:bullseye-slim
 RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /bin/app /bin
-COPY /env/.env /bin
 
-CMD ["/bin/app" , "./bin"]
+CMD ["/bin/app"]
