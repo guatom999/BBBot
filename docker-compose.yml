@@ -1,11 +1,23 @@
-version: "3.8"
-
 services:
-  mongodb:
-    image: mongo:latest
-    container_name: mongo-test-db
-    ports:
-      - 27017:27017
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: 123456
+  bbbot:
+    image: badzboss/bbbot:latest
+    container_name: bbbot
+    env_file:
+      - .env
+#     depends_on:
+#       - mongodb
+
+#   mongodb:
+#     image: mongo:latest
+#     container_name: mongo-test-db
+#     restart: unless-stopped
+#     ports:
+#       - 27017:27017
+#     environment:
+#       MONGO_INITDB_ROOT_USERNAME: root
+#       MONGO_INITDB_ROOT_PASSWORD: 123456
+#     volumes:
+#       - mongo_data:/data/db
+
+# volumes:
+#   mongo_data:

@@ -1,9 +1,28 @@
 .git
 .gitignore
+.github
 
 LICENSE
 README.md
+readme.md
 
 command_deploy.txt
 
 /temp*
+
+# Docker files (ไม่ควรอยู่ใน image)
+docker-compose*.yml
+docker-compose*.yaml
+Dockerfile
+
+# Environment files
+.env
+*.env
+
+# Data files
+*.csv
+*.mp3
+*.mp4
+
+# Go test cache
+*.test
