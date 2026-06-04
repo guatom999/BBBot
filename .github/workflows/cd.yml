@@ -43,4 +43,34 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+  deploy:
+    name: Deploy to Server
+    runs-on: self-hosted
+    needs: build-and-push
 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Pull latest image
+        run: |
+          IMAGE_TAG="sha-$(echo '${{ github.sha }}' | cut -c1-7)"
+          echo "${{ secret.ENV_FILE}}" > .env
+          echo "DOCKER_IMAGE=${{env.DOCKER_IMAGE}}" >> .env
+          echo "IMAGE_TAG=$IMAGE_TAG" >> .env
+          echo "IMAGE_NAME=${{env.DOCKER_IMAGE }}:$IMAGE_TAG" >> .env
+          docker pull "${{ env.DOCKER_IMAGE }}:$IMAGE_TAG"
+
+      - name: Docker Compose up
+        run: |
+          docker compose up -d --remove-orphans
+
+      - name: Clean old image
+        run: |
+          docker image prune -f
