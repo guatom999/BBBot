@@ -49,7 +49,7 @@ type (
 func GetConfig() Config {
 	viper.SetConfigName(".env")
 	viper.SetConfigType("env")
-	viper.AddConfigPath("./env")
+	viper.AddConfigPath("./")
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
