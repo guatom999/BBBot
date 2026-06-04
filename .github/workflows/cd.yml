@@ -61,7 +61,7 @@ jobs:
       - name: Pull latest image
         run: |
           IMAGE_TAG="sha-$(echo '${{ github.sha }}' | cut -c1-7)"
-          echo "${{ secret.ENV_FILE}}" > .env
+          echo "${{ secrets.ENV_FILE}}" > .env
           echo "DOCKER_IMAGE=${{env.DOCKER_IMAGE}}" >> .env
           echo "IMAGE_TAG=$IMAGE_TAG" >> .env
           echo "IMAGE_NAME=${{env.DOCKER_IMAGE }}:$IMAGE_TAG" >> .env
