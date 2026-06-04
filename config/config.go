@@ -53,8 +53,11 @@ func GetConfig() Config {
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("fatal error read config filed %v", err.Error())
-		panic(err)
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			log.Println("No .env file found, using environment variables")
+		} else {
+			log.Fatalf("fatal error read config: %v", err.Error())
+		}
 	}
 
 	return Config{
