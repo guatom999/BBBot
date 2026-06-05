@@ -58,6 +58,11 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Log pwd
+        run: |
+          pwd
+          ls -al
+
       - name: Pull latest image
         run: |
           IMAGE_TAG="sha-$(echo '${{ github.sha }}' | cut -c1-7)"
