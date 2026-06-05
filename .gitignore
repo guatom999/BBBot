@@ -33,3 +33,5 @@ env/
 *.csv
 
 /temp*
+
+*.mp3
