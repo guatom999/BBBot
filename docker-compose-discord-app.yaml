@@ -1,0 +1,20 @@
+services:
+  discord-app:
+    image: my-discord-app:latest
+    container_name: discord-app
+    ports:
+      - 3000:3000
+    environment:
+      DISCORD_BOT_TOKEN: your_bot_token_here
+      MONGO_DB_URI: mongodb://root:123456@mongodb:27017/
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongo-test-db
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 123456
