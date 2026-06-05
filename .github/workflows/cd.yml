@@ -76,7 +76,7 @@ jobs:
         run: |
           ls -al .env
           echo "----"
-           wc -l .env
+          wc -l .env
 
       - name: Docker Compose up
         run: |
