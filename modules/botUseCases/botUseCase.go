@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"time"
 
-	"cloud.google.com/go/storage"
 	"github.com/bwmarrin/discordgo"
 	"github.com/guatom999/BBBot/config"
 	"github.com/guatom999/BBBot/modules/botRepositories"
@@ -34,7 +33,7 @@ type (
 		botRepo botRepositories.IBotRepository
 		cfg     *config.Config
 		session *discordgo.Session
-		cl      *storage.Client
+		// cl      *storage.Client
 	}
 )
 
@@ -42,13 +41,13 @@ func NewBotUseCase(
 	botRepo botRepositories.IBotRepository,
 	config *config.Config,
 	session *discordgo.Session,
-	cli *storage.Client,
+	// cli *storage.Client,
 ) IBotUseCase {
 	return &botUseCase{
 		botRepo: botRepo,
 		cfg:     config,
 		session: session,
-		cl:      cli,
+		// cl:      nil,
 	}
 }
 
@@ -80,7 +79,8 @@ func (u *botUseCase) Donate(pctx context.Context, price string) *bytes.Buffer {
 		log.Printf("Error: Failed to Encode Qr Code: %v", err)
 	}
 
-	fileUrl, err := utils.UploadFile(u.cfg, u.cl, ctx, png)
+	// fileUrl, err := utils.UploadFile(u.cfg, u.cl, ctx, png)
+	fileUrl, err := utils.UploadFile(u.cfg, ctx, png)
 	if err != nil {
 		log.Printf("Error: Failed to Generate QR Code: %v", err)
 		return nil

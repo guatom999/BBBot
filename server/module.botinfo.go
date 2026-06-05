@@ -2,10 +2,8 @@ package server
 
 import (
 	"context"
-	"log"
 	"sync"
 
-	"cloud.google.com/go/storage"
 	"github.com/ahmdrz/goinsta/v2"
 	"github.com/bwmarrin/discordgo"
 	"github.com/guatom999/BBBot/modules/botHandlers"
@@ -89,15 +87,18 @@ func (m *module) BotinfoModule(session *discordgo.Session) IBotinfoModule {
 	// 	}
 	// })
 
-	gcpCli, err := storage.NewClient(ctx)
-	if err != nil {
-		log.Fatalf("Failed to create client: %v", err)
-	}
+	_ = ctx
+
+	// gcpCli, err := storage.NewClient(ctx)
+	// if err != nil {
+	// 	log.Fatalf("Failed to create client: %v", err)
+	// }
 
 	instaBot = nil
 
 	botRepository := botRepositories.NewBotRepository(instaBot)
-	botfoUseCase := botUseCases.NewBotUseCase(botRepository, m.cfg, m.discordServer.dg, gcpCli)
+	// botfoUseCase := botUseCases.NewBotUseCase(botRepository, m.cfg, m.discordServer.dg, gcpCli)
+	botfoUseCase := botUseCases.NewBotUseCase(botRepository, m.cfg, m.discordServer.dg)
 	botfoHandler := botHandlers.NewBotHandler(botfoUseCase, m.cfg)
 
 	// go botfoUseCase.MonitoringTicketShopServer()

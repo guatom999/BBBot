@@ -48,13 +48,15 @@ type (
 
 func GetConfig() Config {
 
+	viper.SetConfigFile(".env")
+	viper.SetConfigType("env")
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			log.Println("No .env file found, using environment variables")
 		} else {
-			log.Fatalf("fatal error read config: %v", err.Error())
+			log.Printf("Warning: could not read .env file: %v", err)
 		}
 	}
 

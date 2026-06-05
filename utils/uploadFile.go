@@ -3,7 +3,6 @@ package utils
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -12,11 +11,12 @@ import (
 )
 
 // func UploadFile(cfg *config.Config, client *storage.Client, pctx context.Context, data []byte) (string, error) {
-func UploadFile(cfg *config.Config, client *storage.Client, pctx context.Context, data []byte) (*bytes.Buffer, error) {
+// func UploadFile(cfg *config.Config, client *storage.Client, pctx context.Context, data []byte) (*bytes.Buffer, error) {
+func UploadFile(cfg *config.Config, pctx context.Context, data []byte) (*bytes.Buffer, error) {
 
-	if client == nil {
-		return nil, errors.New("storage client is nil")
-	}
+	// if client == nil {
+	// 	return nil, errors.New("storage client is nil")
+	// }
 
 	_, cancel := context.WithTimeout(pctx, time.Second*50)
 	defer cancel()
