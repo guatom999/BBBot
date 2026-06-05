@@ -67,6 +67,12 @@ jobs:
           echo "IMAGE_NAME=${{env.DOCKER_IMAGE }}:$IMAGE_TAG" >> .env
           docker pull "${{ env.DOCKER_IMAGE }}:$IMAGE_TAG"
 
+      - name: Verify .env file created
+        run: |
+          ls -al .env
+          echo "----"
+           wc -l .env
+
       - name: Docker Compose up
         run: |
           docker compose up -d --remove-orphans
