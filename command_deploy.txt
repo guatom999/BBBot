@@ -1,0 +1,3 @@
+docker run -e GOOGLE_APPLICATION_CREDENTIALS=/ticket-shop-427608-65c1222b93c6.json \
+  -v $(pwd)/ticket-shop-427608-65c1222b93c6.json:/ticket-shop-427608-65c1222b93c6.json \
+  your-docker-image
