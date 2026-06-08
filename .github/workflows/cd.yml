@@ -12,6 +12,7 @@ jobs:
   build-and-push:
     name: Build and Push to Docker Hub
     runs-on: ubuntu-latest
+    environment: DEV
 
     steps:
       - name: Checkout code
@@ -47,7 +48,8 @@ jobs:
     name: Deploy to Server
     runs-on: self-hosted
     needs: build-and-push
-
+    environment: DEV
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
